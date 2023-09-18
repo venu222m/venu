@@ -1,0 +1,77 @@
+---------------------load balancer
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx
+  name: ng-deploy-nlb
+  annotations:
+     service.beta.kubernetes.io/aws-load-balancer-type: nlb-ip
+spec:
+  ports:
+  - port: 9400
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx
+  type: LoadBalancer
+
+-------------------node port
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx
+  name: ng-dep
+spec:
+  ports:
+  - port: 9000
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx
+  type: NodePort
+
+
+------------------------------replicas set
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: k8s-nginx
+spec:
+  replicas: 3
+  selector:
+    app: k8s-nginx
+  template:
+    metadata:
+      name: k8s-nginx
+      labels:
+        app: k8s-nginx
+    spec:
+      containers:
+      - name: k8s-nginx
+        image: sreeharshav/rollingupdate:v3
+        ports:
+        - containerPort: 80
+----------------------------------deployment
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: k8s-nginx
+spec:
+  replicas: 3
+  selector:
+    app: k8s-nginx
+  template:
+    metadata:
+      name: k8s-nginx
+      labels:
+        app: k8s-nginx
+    spec:
+      containers:
+      - name: k8s-nginx
+        image: sreeharshav/rollingupdate:v3
+        ports:
+        - containerPort: 80
